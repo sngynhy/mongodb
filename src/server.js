@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const { userRouter } = require("./routes/userRoute");
-const { blogRouter } = require("./routes/blogRouter");
+const { userRouter, blogRouter } = require("./routes");
+// const { userRouter } = require("./routes/userRoute");
+// const { blogRouter } = require("./routes/blogRoute");
+// const { commentRouter } = require("./routes/commentRoute");
 
 // mongoDB connect - [BlogAPI] 생성 예정이므로 myFirstDatabase 네임을 BlogService로 변경
 const MONGO_URI = "mongodb+srv://sngynhy:uhzJQ6W2dgFC2xTe@cluster0.bxsto.mongodb.net/BlogService?retryWrites=true&w=majority";
@@ -20,6 +22,9 @@ const server = async() => { // async 함수로 생성해주기
         // 미들웨어 - /user로 시작할 경우 userRouter 연결
         app.use("/user", userRouter);
         app.use("/blog", blogRouter);
+        // app.use("/blog/:blogId/comment", commentRouter); // blog와 부모 자식 관계
+        // commentRouter를 위의 방식으로 추가하거나
+        // comment의 상위 router인 blogRouter파일에 추가해줄 수 있음
 
         app.listen(3000, () => console.log("server listening on port 3000"));   
     } catch(err) {
