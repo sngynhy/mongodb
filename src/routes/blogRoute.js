@@ -1,8 +1,13 @@
 const { Router } = require("express");
 const blogRouter = Router();
-const { Blog } = require("../models/Blog");
-const { User } = require("../models/User");
+const { Blog, User } = require("../models");
+// const { Blog } = require("../models/Blog");
+// const { User } = require("../models/User");
 const { isValidObjectId } = require("mongoose");
+const { commentRouter } = require("./commentRoute");
+
+// blog의 하위 경로인 cmommentRouter 연결 추가
+blogRouter.use("/:blogId/comment", commentRouter);
 
 // 데이터 생성
 blogRouter.post('/', async (req, res) => {

@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const userRouter = Router();
-const { User } = require("../models/User"); // User 파일에 생성된 User model 가져오기
+const { User } = require("../models"); // User 파일에 생성된 User model 가져오기
 const mongoose = require('mongoose');
 
 // 전체 데이터 조회 - GET
