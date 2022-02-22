@@ -4,9 +4,6 @@ const commentRouter = Router({ mergeParams: true });
 // 현재 comment는 blog/:blogId/comment와 같이 접근해야함
 // 즉, blog의 자식(하위)으로 봐야하기 때문에 mergeParams: true 설정 필요
 const { Blog, User, Comment } = require("../models");
-// const { Blog } = require("../models/Blog");
-// const { User } = require("../models/User");
-// const { Comment } = require("../models/Comment");
 const { isValidObjectId } = require("mongoose");
 
 // 데이터 생성

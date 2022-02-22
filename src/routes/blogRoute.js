@@ -1,8 +1,6 @@
 const { Router } = require("express");
 const blogRouter = Router();
 const { Blog, User } = require("../models");
-// const { Blog } = require("../models/Blog");
-// const { User } = require("../models/User");
 const { isValidObjectId } = require("mongoose");
 const { commentRouter } = require("./commentRoute");
 
@@ -37,7 +35,7 @@ blogRouter.post('/', async (req, res) => {
 // 전체 데이터 조회
 blogRouter.get('/', async (req, res) => {
     try {
-        const blogs = await Blog.find({});
+        const blogs = await Blog.find({}).limit(20).populate([{ path: "user" }, { path: "comment", populate: { path: "user" } }]); // 20개씩 조회, populate([{ path: "user" }] : 각 blog에 "user"를 채워라..?
         return res.send({ blogs });
     } catch(err) {
         console.log(err);

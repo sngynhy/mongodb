@@ -2,9 +2,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const { userRouter, blogRouter } = require("./routes");
-// const { userRouter } = require("./routes/userRoute");
-// const { blogRouter } = require("./routes/blogRoute");
-// const { commentRouter } = require("./routes/commentRoute");
+const { generateFakeData } = require("../faker");
 
 // mongoDB connect - [BlogAPI] 생성 예정이므로 myFirstDatabase 네임을 BlogService로 변경
 const MONGO_URI = "mongodb+srv://sngynhy:uhzJQ6W2dgFC2xTe@cluster0.bxsto.mongodb.net/BlogService?retryWrites=true&w=majority";
@@ -15,6 +13,9 @@ const server = async() => { // async 함수로 생성해주기
         await mongoose.connect(MONGO_URI);// mongoDB Connection - await을 했기 때문에 mongoDB 선 연결 후 아래 코드 실행
         mongoose.set('debug', true); // mongoose가 내부적으로 어떤 작업을 하는지 확인 - 어떻게 mongoDB 쿼리로 바꿔주는지
         console.log('MongoDB connected');
+
+        // faker를 이용한 랜덤 데이터 생성
+        await generateFakeData(100, 10, 300); // (userCount, blogsPerUser, commentsPerUser)
 
         app.use(express.json()); // jseon.parse (middleware)
         app.use(express.urlencoded({ extended: true }));
