@@ -1,5 +1,5 @@
 console.log("client code running.");
-const axios = require("axois");
+const axios = require("axios");
 // axios : REST API 호출 시 사용되는 모듈
 
 const URI = "http://localhost:3000";
@@ -7,9 +7,7 @@ const URI = "http://localhost:3000";
 const test = async () => {
     console.time("loading time: "); // 로딩 시간 체크
     // blog 데이터 불러오기
-    let { data: { blogs }} = await axios.get(`${URI}/blog`);
-    console.dir(blogs[3], { depth: 10 });
-    // console.log(blogs.length, blogs[0]);
+    await axios.get(`${URI}/blog`);
 
     // // user 데이터 불러오기
     // blogs.userId = await Promise.all(blogs.map(async blog => { // map() : 데이터 가공에 용이
@@ -26,4 +24,14 @@ const test = async () => {
     console.timeEnd("loading time: ");
 };
 
-test();
+const testGroup = async () => {
+    await test();
+    await test();
+    await test();
+    await test();
+    await test();
+    await test();
+    await test();
+};
+
+testGroup();

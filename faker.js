@@ -14,6 +14,7 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
   console.log("Preparing fake data.");
 
   // faker 모듈을 이용하여 랜덤 데이터 생성
+  //  User 데이터 생성
   for (let i = 0; i < userCount; i++) {
     users.push(
       new User({
@@ -28,6 +29,7 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
     );
   }
 
+  // Blog 데이터 생성
   users.map((user) => {
     for (let i = 0; i < blogsPerUser; i++) {
       blogs.push(
@@ -35,12 +37,13 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
           title: faker.lorem.words(),
           content: faker.lorem.paragraphs(),
           islive: true,
-          user,
+          user,  // mongoose가 알아서 user의 _Id로 저장
         })
       );
     }
   });
 
+  // Comment 데이터 생성
   users.map((user) => {
     for (let i = 0; i < commentsPerUser; i++) {
       let index = Math.floor(Math.random() * blogs.length);  // blog index
@@ -48,7 +51,7 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
         new Comment({
           content: faker.lorem.sentence(),
           user,
-          blog: blogs[index]._id,
+          blog: blogs[index]._id,  
         })
       );
     }
