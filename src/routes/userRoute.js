@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const userRouter = Router();
-const { User, Blog } = require("../models"); // User 파일에 생성된 User model 가져오기
+const { User, Blog, Comment } = require("../models"); // User 파일에 생성된 User model 가져오기
 const mongoose = require("mongoose");
 
 // 전체 데이터 조회 - GET
@@ -60,7 +60,13 @@ userRouter.delete("/:userId", async (req, res) => {
     const { userId } = req.params;
     if (!mongoose.isValidObjectId(userId))
       return res.status(400).send({ err: "invalid userId" });
-    const user = await User.findByIdAndDelete({ _id: userId }); // findByIdAndDelete() : id 조회 및 데이터 삭제 후 해당 user 반환 / deleteOne() : 데이터 삭제 (반환X - 좀 더 효율적임)
+      const [user] = await Promise.all([
+        User.findByIdAndDelete({ _id: userId }), // findByIdAndDelete() : id 조회 및 데이터 삭제 후 해당 user 반환 / deleteOne() : 데이터 삭제 (반환X - 좀 더 효율적임)
+        Blog.deleteMany({ "user._id": userId }), // user 삭제 시 해당 user가 작성한 blog 삭제
+        Blog.updateMany({ "comments.user": userId }, {$pull: { comments: { user: userId }}}),  // blog안에 저장된 comment 삭제
+        Comment.deleteMany({ "user": userId }) // user 삭제 시 해당 user가 작성한 comment 삭제
+
+    ]);
     return res.send({ user }); // 삭제된 user 반환
   } catch (err) {
     console.log(err);
@@ -69,7 +75,7 @@ userRouter.delete("/:userId", async (req, res) => {
 });
 
 // 데이터 수정 - PUT
-// username 변경 시 blog collection의 username 필드도 함께 udpate
+// user name 변경 시 blog collection, comment collection의 user name 필드도 함께 udpate
 userRouter.put("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -93,24 +99,26 @@ userRouter.put("/:userId", async (req, res) => {
     // if (name) return updateBody.name = name;
     // const user = await User.findByIdAndUpdate(userId, updateBody, { new: true }); // findByIdAndUpdate() : 만약 userId에 해당하는 데이터가 있다면 update 처리
 
-    // 방법2) findOnd -> DB -> update & mongoose check -> save() -> DB -> success! 이 경우 DB를 두번 거치기 때문에 비교적 시간이 오래 걸리지만
+    // 방법2) findOne -> DB -> update & mongoose check -> save() -> DB -> success! 이 경우 DB를 두번 거치기 때문에 비교적 시간이 오래 걸리지만
     // 데이터 구조가 복잡(여러개의 instance를 불러와 복합적으로 처리가 필요)하여 직접 수정이 필요한 경우 이 방법이 좋다!
     let user = await User.findById(userId);
     console.log({ userBeforeEdit: user });
     if (age) user.age = age;
     if (name) {
       user.name = name;
-      await Blog.updateMany({ "user._id": userId }, { "user.name": name }); // username 변경 시 blog collection의 username 필드도 함께 udpate
-      //   await Blog.updateMany(
-      //     // comment
-      //     {},
-      //     { "comments.$[element].userFullName": `${name.first} ${name.last}` },
-      //     { arrayFilters: [{ "element.user": userId }] }
-      //   );
+      await Promise.all([
+        // userFullName 변경 시 blog collection의 username 필드도 함께 udpate
+        await Blog.updateMany({ "user._id": userId }, { "user.name": name }),
+        // userFullName 변경 시 blog collection의 comments > comment들의 userFullName udpate
+        // await Blog.updateMany(  // <<<<<<<< 코드 수정 (왜 안되는지 모르겠다!!!!!!)
+        //   {}, // filter 생략
+        //   { "comments.$[comment].userFullName": `${name.first} ${name.last}` },  // element == comment
+        //   { arrayFilters: [{ "comment.user": userId }] }  // filter 적용
+        // )
+      ]);
     }
     console.log({ userAfterEdit: user });
     await user.save();
-
     return res.send({ user });
   } catch (err) {
     console.log(err);

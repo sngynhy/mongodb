@@ -6,7 +6,8 @@ const CommentSchema = new Schema({
     user: {type: ObjectId, required: true, ref: "user"}, // uerId
     userFullName: {type: String, required: true},
     blog: {type: ObjectId, required: true, ref: "blog"}
-});
+}, { timestamps: true } 
+);
 
 // 모델 생성
 const Comment = model('comment', CommentSchema);

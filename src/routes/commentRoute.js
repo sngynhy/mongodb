@@ -48,7 +48,7 @@ commentRouter.post("/", async (req, res) => {
     // 1. comment collection에 저장 2. 해당 blog에 추가된 comment데이터를 comments필드에 업데이트(push)
     await Promise.all([
       comment.save(),
-      Blog.updateOne({ _id: blogId }, { $push: { comments: comment } }),
+      Blog.updateOne({ _id: blogId }, { $push: { comments: comment } }), // $push: 요소 추가
     ]);
 
     return res.send({ comment });
@@ -88,10 +88,9 @@ commentRouter.patch("/:commentId", async (req, res) => {
       // Blog collection에서 commentId에 해당하는 데이터 수정
       await Blog.updateOne(
         { "comments._id": commentId },
-        { "comments.$.content": content } // .$. : 앞의 commentId에 대응하는 element를 선택
+        { "comments.$.content": content } // .$. : 위의 filter("comments._id": commentI)에 대응하는 element를 선택
       ),
     ]);
-
     return res.send({ comment });
   } catch (err) {
     console.log(err);
@@ -103,14 +102,14 @@ commentRouter.patch("/:commentId", async (req, res) => {
 commentRouter.delete("/:commentId", async (req, res) => {
   try {
     const { commentId } = req.params;
-    if (!mongoose.isValidObjectId(commentId))
+    if (!isValidObjectId(commentId))
       return res.status(400).send({ err: "invalid commentIdd" });
 
-    const comment = await User.findByIdAndDelete({ _id: commentId }); // findByIdAndDelete() : id 조회 및 데이터 삭제 후 해당 user 반환 / deleteOne() : 데이터 삭제 (반환X - 좀 더 효율적임)
+    const comment = await Comment.findByIdAndDelete({ _id: commentId }); // findByIdAndDelete() : id 조회 및 데이터 삭제 후 해당 데이터 반환 / deleteOne() : 데이터 삭제 (반환X - 좀 더 효율적임)
     await Blog.updateOne(
-      // Blog collection에 저장되어있는 comment도 삭제
+      // Blog collection에 저장되어있는 comment 목록에서도 삭제
       { "comments._id": commentId },
-      { $pull: { comments: { _id: commentId } } }
+      { $pull: { comments: { _id: commentId } } } // $pull : 배열에서 해당 데이터 삭제
     );
     return res.send({ comment }); // 삭제된 user 반환
   } catch (err) {

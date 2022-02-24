@@ -12,3 +12,11 @@
 
 > userRoute.js - PUT 코드 수정 필요
 > Blog.js - comments: [CommentSchema] 부분 수정 필요 (구글링해보기)
+
+2/24
+- comment 삭제 시 blog comments 목록에서 해당 comment 삭제 처리
+- user 삭제 시 blog user 목록에서 해당 user의 blog, comment 삭제 처리
+
+> userRoute.js - PUT Blog.updateMany 코드 수정 필요
+(userFullName 변경 시 blog collection의 comments > comment들의 userFullName udpate)
+> commentRoute.js - PATCH Blog.updateOne 부분 수정 필요 (content를 못찾음)
