@@ -37,11 +37,16 @@ blogRouter.post("/", async (req, res) => {
   }
 });
 
-// 전체 데이터 조회
+// 전체 데이터 조회 - pagination 기능 추가
 blogRouter.get("/", async (req, res) => {
   try {
+    let { page } = req.query;  // 쿼리 스트링으로 받은 파라미터값
+    page = parseInt(page);  // req.query는 String 타입으로 반환하기 때문에 int 타입으로 형 변환
+    console.log({ page: page });
     const blogs = await Blog.find({})
-      .limit(20) // 데이터를 20개씩 조회
+      .sort({ updateAt: -1 })  // 최신 업데이트 순으로 정렬
+      .skip(page * 3)
+      .limit(3) // 데이터를 3개씩 조회
       .populate([
         { path: "user" },
         { path: "comments", populate: { path: "user" } },
